@@ -79,4 +79,38 @@ public class ApplicationTest {
             }
         });
     }
+
+
+    @Test
+    public void testRabbitTemplate2() {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.getHeaders().put("desc", "信息描述");
+        messageProperties.getHeaders().put("type", "自定义消息类型");
+        messageProperties.setContentType("text/plain");
+
+        Message message = new Message("Hello RabbitMQ----1111".getBytes(), messageProperties);
+        rabbitTemplate.convertAndSend("exchange-topic-001", "spring.msg", message, new MessagePostProcessor() {
+            @Override
+            public Message postProcessMessage(Message message) throws AmqpException {
+                System.out.println("处理消息...");
+                message.getMessageProperties().getHeaders().put("desc", "已经修改的信息描述");
+                message.getMessageProperties().getHeaders().put("attr", "新增属性");
+                System.out.println("处理消息end");
+                return message;
+            }
+        });
+
+
+        message = new Message("Hello RabbitMQ---2222".getBytes(), messageProperties);
+        rabbitTemplate.convertAndSend("exchange-topic-002", "rabbit.msg", message, new MessagePostProcessor() {
+            @Override
+            public Message postProcessMessage(Message message) throws AmqpException {
+                System.out.println("处理消息...");
+                message.getMessageProperties().getHeaders().put("desc", "已经修改的信息描述");
+                message.getMessageProperties().getHeaders().put("attr", "新增属性");
+                System.out.println("处理消息end");
+                return message;
+            }
+        });
+    }
 }
