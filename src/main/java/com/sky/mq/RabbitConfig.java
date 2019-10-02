@@ -83,7 +83,7 @@ public class RabbitConfig {
         messageListenerAdapter.setMessageConverter(new TextMessageConverter());
         simpleMessageListenerContainer.setMessageListener(messageListenerAdapter);*/
 
-
+        // 下面是适配器的方式:队列名称和方法名称一一匹配
         MessageListenerAdapter messageListenerAdapter = new MessageListenerAdapter(new MessageDelegate());
         Map<String,String> map = new HashMap<>();
         map.put("queue-001","method1");
