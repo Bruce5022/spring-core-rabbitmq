@@ -1,11 +1,9 @@
-package com.sky.mq;
+package com.sky.mq.converter;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.support.converter.MessageConversionException;
 import org.springframework.amqp.support.converter.MessageConverter;
-
-import java.lang.reflect.Type;
 
 public class TextMessageConverter implements MessageConverter {
 

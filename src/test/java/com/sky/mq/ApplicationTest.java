@@ -1,5 +1,7 @@
 package com.sky.mq;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sky.mq.model.Order;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.AmqpException;
@@ -17,6 +19,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -112,5 +117,80 @@ public class ApplicationTest {
                 return message;
             }
         });
+    }
+
+
+    @Test
+    public void testSendJsonMessage() throws Exception {
+        Order order = new Order();
+        order.setId("S001");
+        order.setName("订单消息");
+        order.setContent("描述信息");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(order);
+
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        Message message = new Message(json.getBytes(),messageProperties);
+        rabbitTemplate.send("exchange-topic-001","spring.order",message);
+    }
+
+
+    @Test
+    public void testSendJavaMessage() throws Exception {
+        Order order = new Order();
+        order.setId("S001");
+        order.setName("订单消息");
+        order.setContent("描述信息");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(order);
+
+        System.out.println("---->json:"+json);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        messageProperties.getHeaders().put("__TypeId__", "com.sky.mq.model.Order");
+        Message message = new Message(json.getBytes(),messageProperties);
+        rabbitTemplate.send("exchange-topic-001","spring.order",message);
+    }
+
+    @Test
+    public void testSendJavaMessage2() throws Exception {
+        Order order = new Order();
+        order.setId("S001");
+        order.setName("订单消息");
+        order.setContent("描述信息");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(order);
+
+        System.out.println("---->json:"+json);
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/json");
+        messageProperties.getHeaders().put("__TypeId__", "order");
+        Message message = new Message(json.getBytes(),messageProperties);
+        rabbitTemplate.send("exchange-topic-001","spring.order",message);
+    }
+
+
+    @Test
+    public void testSendExtConverterMessage() throws Exception {
+
+        byte[] body = Files.readAllBytes(Paths.get("d:/","szw.png"));
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("image/png");
+        messageProperties.getHeaders().put("extName","jpg");
+        Message message = new Message(body,messageProperties);
+        rabbitTemplate.send("","image_queue",message);
+    }
+
+
+
+    @Test
+    public void testSendExtConverterMessage2() throws Exception {
+
+        byte[] body = Files.readAllBytes(Paths.get("d:/","史战伟简历.pdf"));
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setContentType("application/pdf");
+        Message message = new Message(body,messageProperties);
+        rabbitTemplate.send("","pdf_queue",message);
     }
 }
